@@ -29,7 +29,7 @@ public class UserController {
     }
     
 
-
+//--------------endpoints para desarrollo, no expuestos en entorno productivo---------
     
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {

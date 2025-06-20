@@ -175,8 +175,6 @@ docker-compose -f docker-compose.dev.yml logs -f
 
 ## 🛠️ Scripts y Herramientas Útiles
 
-- **`comandos utiles.txt`**: Comandos frecuentes para desarrollo
-- **`diagnose-redis.sh`**: Script para diagnosticar problemas con Redis
 - **`Uala_Microblog_Collection.postman_collection.json`**: Colección de Postman para probar la API
 
 ### Uso de la colección de Postman
@@ -190,36 +188,6 @@ docker-compose -f docker-compose.dev.yml logs -f
 chmod +x diagnose-redis.sh
 ./diagnose-redis.sh
 ```
-
-## 🚨 Solución de Problemas
-
-### Puerto ocupado
-```bash
-# Verificar qué proceso usa el puerto 8080
-lsof -i :8080
-
-# Terminar proceso que usa el puerto
-lsof -ti :8080 | xargs kill -9
-```
-
-### Problemas con Docker
-```bash
-# Reiniciar todos los servicios
-docker-compose -f docker-compose.dev.yml down
-docker-compose -f docker-compose.dev.yml up -d
-
-# Ver estado de los contenedores
-docker ps -a
-
-# Ver logs específicos de un servicio
-docker-compose -f docker-compose.dev.yml logs [servicio]
-```
-
-## 📚 Documentación Adicional
-
-- [Optimizaciones Locales](QUICK_LOCAL_OPTIMIZATIONS.md)
-- [Recomendaciones de Escalabilidad](ARCHITECTURE_SCALING_RECOMMENDATIONS.md)
-- [Implementación Push Fanout](PUSH_FANOUT_IMPLEMENTATION.md)
 
 ## 📋 Credenciales por Defecto
 
