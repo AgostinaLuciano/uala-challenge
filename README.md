@@ -30,6 +30,10 @@ Una plataforma de microblogging simplificada similar a Twitter, construida con S
 - Docker y Docker Compose
 - Git
 
+## Arquitectura propuesta para produccion
+
+![Diagrama arq gral](images/arq.jpeg)
+
 ## 🚦 Instalación y Configuración
 
 ### 1. Clonar el repositorio
