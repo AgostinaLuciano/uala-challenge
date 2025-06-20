@@ -1,0 +1,616 @@
+{
+	"info": {
+		"_postman_id": "12345678-1234-1234-1234-123456789abc",
+		"name": "Uala Microblog - Complete API",
+		"description": "Colección completa de APIs para el microblog de Uala.\n\n**Funcionalidades implementadas:**\n- ✅ Crear usuarios\n- ✅ Obtener usuarios (individual, todos, seguidores, siguiendo)\n- ✅ Publicar tweets (≤280 caracteres)\n- ✅ Obtener tweets de usuario\n- ✅ Seguir usuarios\n- ✅ Ver timeline (tweets de usuarios seguidos)\n\n**Base URL:** http://localhost:8080",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "👤 Users",
+			"item": [
+				{
+					"name": "Crear Usuario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response has user data', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.expect(jsonData).to.have.property('username');",
+									"    pm.expect(jsonData).to.have.property('email');",
+									"    pm.expect(jsonData).to.have.property('createdAt');",
+									"});",
+									"",
+									"// Guardar el ID del usuario para usar en otros requests",
+									"if (pm.response.code === 201) {",
+									"    const user = pm.response.json();",
+									"    pm.collectionVariables.set('user_id', user.id);",
+									"    pm.collectionVariables.set('username', user.username);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"alice123\",\n    \"email\": \"alice@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Crea un nuevo usuario en el sistema.\n\n**Validaciones:**\n- Username: 3-50 caracteres, solo letras, números y guiones bajos\n- Email: formato válido\n- Ambos campos son únicos\n\n**Response:** Usuario creado con ID asignado"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Usuario #2 (Bob)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"// Guardar el ID del segundo usuario",
+									"if (pm.response.code === 201) {",
+									"    const user = pm.response.json();",
+									"    pm.collectionVariables.set('user_id_2', user.id);",
+									"    pm.collectionVariables.set('username_2', user.username);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"bob456\",\n    \"email\": \"bob@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Crea un segundo usuario para demostrar la funcionalidad de follow y timeline."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Todos los Usuarios",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Users have required properties', function () {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.length > 0) {",
+									"        jsonData.forEach(user => {",
+									"            pm.expect(user).to.have.property('id');",
+									"            pm.expect(user).to.have.property('username');",
+									"            pm.expect(user).to.have.property('email');",
+									"            pm.expect(user).to.have.property('createdAt');",
+									"        });",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Obtiene la lista de todos los usuarios registrados en el sistema."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Usuario por ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has user data', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.expect(jsonData).to.have.property('username');",
+									"    pm.expect(jsonData).to.have.property('email');",
+									"    pm.expect(jsonData).to.have.property('createdAt');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}"
+							]
+						},
+						"description": "Obtiene información detallada de un usuario específico por su ID."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Seguidores",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}/followers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}",
+								"followers"
+							]
+						},
+						"description": "Obtiene la lista de usuarios que siguen al usuario especificado."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Usuarios Seguidos",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}/following",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}",
+								"following"
+							]
+						},
+						"description": "Obtiene la lista de usuarios que el usuario especificado está siguiendo."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Tweets del Usuario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}/tweets",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}",
+								"tweets"
+							]
+						},
+						"description": "Obtiene todos los tweets publicados por un usuario específico."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints relacionados con la gestión completa de usuarios."
+		},
+		{
+			"name": "🐦 Tweets",
+			"item": [
+				{
+					"name": "Publicar Tweet",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response has tweet data', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.expect(jsonData).to.have.property('content');",
+									"    pm.expect(jsonData).to.have.property('userId');",
+									"    pm.expect(jsonData).to.have.property('createdAt');",
+									"});",
+									"",
+									"pm.test('Tweet content matches request', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.content).to.include('Hello Twitter world');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"{{user_id}}\",\n    \"content\": \"Hello Twitter world! This is my first tweet. 🚀\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/tweets",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tweets"
+							]
+						},
+						"description": "Publica un nuevo tweet.\n\n**Body requerido:**\n- `userId`: ID del usuario que publica\n- `content`: Contenido del tweet\n\n**Validaciones:**\n- Contenido no vacío\n- Máximo 280 caracteres\n- Usuario debe existir\n\n**Response:** Tweet creado con ID asignado"
+					},
+					"response": []
+				},
+				{
+					"name": "Publicar Tweet #2",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"{{user_id}}\",\n    \"content\": \"Having a great day coding! ☕ #coding #development\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/tweets",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tweets"
+							]
+						},
+						"description": "Segundo tweet del usuario para tener más contenido en el timeline."
+					},
+					"response": []
+				},
+				{
+					"name": "Tweet desde otro usuario (Bob)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"{{user_id_2}}\",\n    \"content\": \"Nice to meet everyone! Looking forward to connecting 👋\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/tweets",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tweets"
+							]
+						},
+						"description": "Tweet desde el segundo usuario (Bob) para demostrar timeline de diferentes usuarios."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para publicar tweets (mensajes cortos ≤280 caracteres)."
+		},
+		{
+			"name": "👥 Follow",
+			"item": [
+				{
+					"name": "Seguir Usuario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response has follow relationship data', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.expect(jsonData).to.have.property('followerId');",
+									"    pm.expect(jsonData).to.have.property('followedId');",
+									"    pm.expect(jsonData).to.have.property('createdAt');",
+									"});",
+									"",
+									"pm.test('Follow relationship is correct', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const followerId = pm.collectionVariables.get('user_id_2');",
+									"    const followedId = pm.collectionVariables.get('user_id');",
+									"    pm.expect(jsonData.followerId.toString()).to.eql(followerId);",
+									"    pm.expect(jsonData.followedId.toString()).to.eql(followedId);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"followerId\": \"{{user_id_2}}\",\n    \"followedId\": \"{{user_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/follow",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"follow"
+							]
+						},
+						"description": "Crea una relación de seguimiento entre usuarios.\n\n**Body requerido:**\n- `followerId`: ID del usuario que quiere seguir\n- `followedId`: ID del usuario a seguir\n\n**Validaciones:**\n- Ambos usuarios deben existir\n- Un usuario no puede seguirse a sí mismo\n- No se pueden crear relaciones duplicadas\n\n**Response:** Relación de seguimiento creada"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para crear relaciones de seguimiento entre usuarios."
+		},
+		{
+			"name": "📰 Timeline",
+			"item": [
+				{
+					"name": "Ver Timeline Personal",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Timeline contains tweets from followed users', function () {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.length > 0) {",
+									"        jsonData.forEach(tweet => {",
+									"            pm.expect(tweet).to.have.property('id');",
+									"            pm.expect(tweet).to.have.property('content');",
+									"            pm.expect(tweet).to.have.property('userId');",
+									"            pm.expect(tweet).to.have.property('createdAt');",
+									"        });",
+									"    }",
+									"});",
+									"",
+									"pm.test('Timeline is ordered by creation date (newest first)', function () {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.length > 1) {",
+									"        for (let i = 0; i < jsonData.length - 1; i++) {",
+									"            const currentDate = new Date(jsonData[i].createdAt);",
+									"            const nextDate = new Date(jsonData[i + 1].createdAt);",
+									"            pm.expect(currentDate.getTime()).to.be.at.least(nextDate.getTime());",
+									"        }",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/timeline?userId={{user_id_2}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"timeline"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{user_id_2}}",
+									"description": "ID del usuario que consulta su timeline"
+								}
+							]
+						},
+						"description": "Obtiene el timeline personal del usuario (tweets de usuarios que sigue).\n\n**Query Parameters:**\n- `userId`: ID del usuario que consulta su timeline\n\n**Funcionalidad:**\n- Muestra solo tweets de usuarios seguidos\n- Si no sigue a nadie, retorna array vacío\n- Tweets ordenados por fecha de creación (más recientes primero)\n\n**Response:** Array de tweets del timeline"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para consultar el timeline personal (tweets de usuarios seguidos)."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Script que se ejecuta antes de cada request",
+					"console.log('🚀 Ejecutando request:', pm.request.name || 'Sin nombre');"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Script que se ejecuta después de cada request",
+					"console.log('✅ Completado:', pm.request.name || 'Sin nombre', '- Status:', pm.response.status);"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"description": "URL base del API del microblog"
+		},
+		{
+			"key": "user_id",
+			"value": "1",
+			"description": "ID del primer usuario (Alice)"
+		},
+		{
+			"key": "user_id_2",
+			"value": "2",
+			"description": "ID del segundo usuario (Bob)"
+		},
+		{
+			"key": "username",
+			"value": "alice123",
+			"description": "Username del primer usuario"
+		},
+		{
+			"key": "username_2",
+			"value": "bob456",
+			"description": "Username del segundo usuario"
+		}
+	]
+} 

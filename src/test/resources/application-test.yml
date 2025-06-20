@@ -1,0 +1,32 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/microblog_test
+      auto-index-creation: true
+  
+  # Cache completamente deshabilitado para tests
+  cache:
+    type: none
+    
+# Configuración de logging para tests
+logging:
+  level:
+    com.uala.microblog: DEBUG
+    org.springframework.data.mongodb: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.boot.autoconfigure: WARN
+    org.springframework.amqp: WARN
+    org.springframework.data.redis: WARN
+    root: INFO
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# Configuración específica para tests
+microblog:
+  cache:
+    timeline-ttl: 60 # 1 minuto para tests
+    user-ttl: 120 # 2 minutos para tests
+    
+# Configuración para test embebido
+de.flapdoodle.embed.mongo:
+  version: 4.4.18 
